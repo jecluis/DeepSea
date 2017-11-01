@@ -2094,6 +2094,8 @@
           {
             "aliasColors": {},
             "bars": false,
+            "dashLength": 10,
+            "dashes": false,
             "datasource": "Prometheus",
             "fill": 1,
             "id": 36,
@@ -2108,7 +2110,7 @@
               "total": false,
               "values": false
             },
-            "lines": true,
+            "lines": false,
             "linewidth": 1,
             "links": [],
             "nullPointMode": "null",
@@ -2116,30 +2118,71 @@
             "pointradius": 5,
             "points": false,
             "renderer": "flot",
-            "seriesOverrides": [],
+            "seriesOverrides": [
+              {
+                "alias": "OSD Util stddev",
+                "lines": false,
+                "fillBelowTo": "- OSD Util stddev",
+                "color": "#2F575E"
+              },
+              {
+                "alias": "OSD Util Avg",
+                "lines": true,
+                "fill": 0,
+                "linewidth": 2,
+                "color": "#6ED0E0"
+              },
+              {
+                "alias": "- OSD Util stddev",
+                "lines": false,
+                "legend": false
+              }
+            ],
+            "spaceLength": 10,
             "span": 12,
             "stack": false,
             "steppedLine": false,
             "targets": [
               {
-                "expr": "ceph_osd_used_bytes{cluster='$cluster',instance='$instance',job='ceph-exporter'}",
+                "refId": "A",
+                "expr": "avg(ceph_osd_used_bytes{cluster='$cluster',instance='$instance',job='ceph-exporter'}) + stddev(ceph_osd_used_bytes{cluster='$cluster',instance='$instance',job='ceph-exporter'})",
+                "intervalFactor": 2,
+                "format": "time_series",
+                "step": 20,
+                "legendFormat": "OSD Util stddev",
+                "hide": false
+              },
+              {
+                "refId": "B",
+                "expr": "avg(ceph_osd_used_bytes{cluster='$cluster',instance='$instance',job='ceph-exporter'}) - stddev(ceph_osd_used_bytes{cluster='$cluster',instance='$instance',job='ceph-exporter'})",
+                "intervalFactor": 2,
+                "format": "time_series",
+                "step": 20,
+                "legendFormat": "- OSD Util stddev",
+                "hide": false
+              },
+              {
+                "expr": "avg(ceph_osd_used_bytes{cluster='$cluster',instance='$instance',job='ceph-exporter'})",
                 "intervalFactor": 1,
-                "legendFormat": "{{osd}}",
+                "legendFormat": "OSD Util Avg",
                 "refId": "J",
-                "step": 1
+                "step": 10,
+                "format": "time_series",
+                "hide": false
               }
             ],
             "thresholds": [],
             "timeFrom": null,
             "timeShift": null,
-            "title": "OSD Utilization",
+            "title": "Average OSD Utilization",
             "tooltip": {
-              "shared": true,
+              "shared": false,
               "sort": 0,
-              "value_type": "individual"
+              "value_type": "cumulative"
             },
             "type": "graph",
             "xaxis": {
+              "buckets": null,
               "mode": "time",
               "name": null,
               "show": true,
@@ -2151,7 +2194,7 @@
                 "label": "Used",
                 "logBase": 1,
                 "max": null,
-                "min": null,
+                "min": "0",
                 "show": true
               },
               {
